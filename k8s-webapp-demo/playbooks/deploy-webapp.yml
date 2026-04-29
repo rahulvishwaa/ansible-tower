@@ -1,0 +1,62 @@
+# playbooks/deploy-webapp.yml
+---
+- name: Deploy webapp to Kubernetes
+  hosts: k8s_master             # your kubeadm master node
+  become: true
+  vars:
+    manifest_dir: "{{ playbook_dir }}/../manifests"
+
+  tasks:
+    - name: Create namespace
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ manifest_dir }}/00-namespace.yml"
+
+    - name: Apply ConfigMap
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ manifest_dir }}/01-configmap.yml"
+
+    - name: Apply Secret
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ manifest_dir }}/02-secret.yml"
+
+    - name: Apply Deployment
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ manifest_dir }}/03-deployment.yml"
+
+    - name: Apply Service
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ manifest_dir }}/04-service.yml"
+
+    - name: Apply Ingress
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ manifest_dir }}/05-ingress.yml"
+
+    - name: Wait for deployment to be ready
+      kubernetes.core.k8s_info:
+        kind: Deployment
+        name: webapp
+        namespace: webapp
+        wait: true
+        wait_condition:
+          type: Available
+          status: "True"
+        wait_timeout: 120
+
+    - name: Show pod status
+      kubernetes.core.k8s_info:
+        kind: Pod
+        namespace: webapp
+        label_selectors:
+          - app=webapp
+      register: pod_info
+
+    - name: Print pod names and status
+      ansible.builtin.debug:
+        msg: "{{ item.metadata.name }} → {{ item.status.phase }}"
+      loop: "{{ pod_info.resources }}"
