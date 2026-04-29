@@ -15,10 +15,20 @@
         state: present
         src: "{{ base_url }}/01-configmap.yml"
 
+    
     - name: Apply Secret
       kubernetes.core.k8s:
         state: present
-        src: "{{ base_url }}/02-secret.yml"
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: webapp-secret
+            namespace: webapp
+          type: Opaque
+          data:
+            DB_PASSWORD: "{{ db_password | b64encode }}"
+            API_KEY: "{{ api_key | b64encode }}"
 
     - name: Apply Deployment
       kubernetes.core.k8s:
