@@ -1,7 +1,7 @@
 # playbooks/deploy-webapp.yml
 ---
 - name: Deploy webapp to Kubernetes
-  hosts: k8s_master             # your kubeadm master node
+  hosts: all            # your kubeadm master node
   become: true
   vars:
     manifest_dir: "{{ playbook_dir }}/../manifests"
