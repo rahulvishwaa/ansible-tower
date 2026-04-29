@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: webapp-config
+  namespace: webapp
+data:
+  APP_ENV: "production"
+  APP_PORT: "80"
+  APP_TITLE: "Deployed via Ansible Tower"
