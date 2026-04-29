@@ -10,4 +10,4 @@ spec:
   ports:
     - port: 80               # ClusterIP port (internal)
       targetPort: 80         # pod container port
-      nodePort: 30080        # external port on every node
+      nodePort: 30081        # external port on every node
